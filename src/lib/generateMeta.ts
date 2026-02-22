@@ -1,29 +1,29 @@
 import type { Metadata } from 'next'
 
-interface MetaDoc {
-  meta?: {
-    title?: string | null
-    description?: string | null
-    image?: {
-      url?: string | null
-      alt?: string | null
-    } | null
-  }
+interface MetaFields {
   title?: string | null
+  description?: string | null
+  image?: {
+    url?: string | null
+    alt?: string | null
+  } | null
 }
 
 const defaultTitle = 'Site'
 const defaultDescription = ''
 
-export const generateMeta = (doc: MetaDoc | null | undefined): Metadata => {
-  const title = doc?.meta?.title || doc?.title || defaultTitle
-  const description = doc?.meta?.description || defaultDescription
+// Accepts any Payload document (typed or untyped) with optional meta/title fields
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const generatePageMeta = (doc: Record<string, any> | null | undefined): Metadata => {
+  const meta = doc?.meta as MetaFields | undefined
+  const title = meta?.title || (doc?.title as string | undefined) || defaultTitle
+  const description = meta?.description || defaultDescription
 
-  const ogImage = doc?.meta?.image?.url
+  const ogImage = meta?.image?.url
     ? [
         {
-          url: doc.meta.image.url,
-          alt: doc.meta.image.alt || '',
+          url: meta.image.url,
+          alt: meta.image.alt || '',
         },
       ]
     : undefined
@@ -38,3 +38,5 @@ export const generateMeta = (doc: MetaDoc | null | undefined): Metadata => {
     },
   }
 }
+
+export const generateMeta = generatePageMeta

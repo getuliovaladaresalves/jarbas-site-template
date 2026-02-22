@@ -24,7 +24,8 @@ export function MetaPixel({ pixelId }: { pixelId: string }) {
 }
 
 export function fbEvent(name: string, params?: Record<string, unknown>) {
-  if (typeof window !== 'undefined' && (window as Record<string, unknown>).fbq) {
-    ;(window as Record<string, (...args: unknown[]) => void>).fbq('track', name, params)
+  if (typeof window !== 'undefined' && 'fbq' in window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).fbq('track', name, params)
   }
 }

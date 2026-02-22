@@ -32,7 +32,7 @@ async function main() {
         },
         filePath,
       })
-      idMap[item.wpId] = doc.id
+      idMap[item.wpId] = String(doc.id)
       console.log(`  ✓ ${item.filename} → ${doc.id}`)
     } catch (err) {
       console.error(`  ✗ ${item.filename}:`, (err as Error).message)

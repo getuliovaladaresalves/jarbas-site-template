@@ -9,17 +9,21 @@ type Props = {
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload()
-  const { docs } = await payload.find({
-    collection: 'pages',
-    where: { status: { equals: 'published' } },
-    limit: 100,
-    select: { slug: true },
-  })
+  try {
+    const payload = await getPayload()
+    const { docs } = await payload.find({
+      collection: 'pages',
+      where: { status: { equals: 'published' } },
+      limit: 100,
+      select: { slug: true },
+    })
 
-  return docs
-    .filter((doc) => doc.slug !== 'home')
-    .map((doc) => ({ slug: doc.slug }))
+    return docs
+      .filter((doc) => doc.slug !== 'home')
+      .map((doc) => ({ slug: doc.slug }))
+  } catch {
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

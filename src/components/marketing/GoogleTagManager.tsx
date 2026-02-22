@@ -30,7 +30,9 @@ export function GoogleTagManager({ gtmId }: { gtmId: string }) {
 
 export function gtmEvent(event: string, data?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    ;(window as Record<string, unknown[]>).dataLayer = (window as Record<string, unknown[]>).dataLayer || []
-    ;(window as Record<string, unknown[]>).dataLayer.push({ event, ...data })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any
+    w.dataLayer = w.dataLayer || []
+    w.dataLayer.push({ event, ...data })
   }
 }

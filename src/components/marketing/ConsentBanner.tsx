@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const CONSENT_KEY = 'cookie-consent'
 
@@ -30,9 +31,9 @@ export function ConsentBanner() {
       <div className="container flex flex-col sm:flex-row items-center justify-between gap-4">
         <p className="text-sm text-gray-700">
           Este site utiliza cookies para melhorar sua experiência. Ao continuar navegando, você concorda com nossa{' '}
-          <a href="/politica-privacidade" className="text-blue-600 underline">
+          <Link href="/politica-privacidade" className="text-blue-600 underline">
             Política de Privacidade
-          </a>.
+          </Link>.
         </p>
         <div className="flex gap-3 shrink-0">
           <button

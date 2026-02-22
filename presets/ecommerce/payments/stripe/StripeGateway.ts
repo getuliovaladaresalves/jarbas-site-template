@@ -14,7 +14,7 @@ export class StripeGateway implements PaymentGateway {
 
   constructor() {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-01-27.acacia',
+      apiVersion: '2026-01-28.clover',
     })
   }
 

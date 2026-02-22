@@ -21,8 +21,9 @@ export function GoogleAds({ conversionId }: { conversionId: string }) {
 }
 
 export function trackConversion(conversionId: string, conversionLabel: string, value?: number) {
-  if (typeof window !== 'undefined' && (window as Record<string, unknown>).gtag) {
-    ;(window as Record<string, (...args: unknown[]) => void>).gtag('event', 'conversion', {
+  if (typeof window !== 'undefined' && 'gtag' in window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).gtag('event', 'conversion', {
       send_to: `${conversionId}/${conversionLabel}`,
       value,
     })

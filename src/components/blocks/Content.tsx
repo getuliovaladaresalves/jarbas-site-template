@@ -1,7 +1,8 @@
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 interface ContentProps {
-  content?: Record<string, unknown>
+  content?: SerializedEditorState
   columns?: '1' | '2' | '3'
 }
 
