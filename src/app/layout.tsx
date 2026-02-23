@@ -8,8 +8,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Site Template',
-  description: 'Template universal de sites com Next.js + Payload CMS',
+  title: process.env.NEXT_PUBLIC_SITE_NAME || 'Site',
+  description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '',
 }
 
 export default function RootLayout({

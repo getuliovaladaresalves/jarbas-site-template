@@ -4,8 +4,6 @@ import { Footer } from '@/components/layout/Footer'
 import { MarketingScripts } from '@/components/marketing/MarketingScripts'
 import { getPayload } from '@/lib/payload'
 
-export const dynamic = 'force-dynamic'
-
 export default async function FrontendLayout({
   children,
 }: {

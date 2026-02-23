@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
@@ -8,6 +9,17 @@ import { RichText } from '@payloadcms/richtext-lexical/react'
 type Props = {
   params: Promise<{ slug: string }>
 }
+
+const getPost = cache(async (slug: string) => {
+  const payload = await getPayload()
+  const { docs } = await payload.find({
+    collection: 'posts',
+    where: { slug: { equals: slug } },
+    limit: 1,
+    depth: 2,
+  })
+  return docs[0] ?? null
+})
 
 export async function generateStaticParams() {
   try {
@@ -26,29 +38,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const payload = await getPayload()
-  const { docs } = await payload.find({
-    collection: 'posts',
-    where: { slug: { equals: slug } },
-    limit: 1,
-  })
-  const post = docs[0]
+  const post = await getPost(slug)
   if (!post) return {}
   return generatePageMeta(post)
 }
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params
-  const payload = await getPayload()
-
-  const { docs } = await payload.find({
-    collection: 'posts',
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 2,
-  })
-
-  const post = docs[0]
+  const post = await getPost(slug)
   if (!post) notFound()
 
   const image = typeof post.featuredImage === 'object' ? post.featuredImage : null

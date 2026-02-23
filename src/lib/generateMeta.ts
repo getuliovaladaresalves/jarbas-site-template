@@ -9,8 +9,8 @@ interface MetaFields {
   } | null
 }
 
-const defaultTitle = 'Site'
-const defaultDescription = ''
+const defaultTitle = process.env.NEXT_PUBLIC_SITE_NAME || 'Site'
+const defaultDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || ''
 
 // Accepts any Payload document (typed or untyped) with optional meta/title fields
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

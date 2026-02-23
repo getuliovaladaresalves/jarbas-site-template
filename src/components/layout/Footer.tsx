@@ -1,3 +1,4 @@
+// SHELL — sem estilo. O @dev aplica o design-system.md neste componente.
 import Link from 'next/link'
 
 interface FooterLink {
@@ -26,20 +27,8 @@ interface FooterProps {
 function getHref(link?: FooterLink['link']): string {
   if (!link) return '#'
   if (link.type === 'external') return link.url || '#'
-  if (link.type === 'internal' && link.reference) {
-    return `/${(link.reference as { slug?: string }).slug || ''}`
-  }
+  if (link.type === 'internal' && link.reference) return `/${(link.reference as { slug?: string }).slug || ''}`
   return link.url || '#'
-}
-
-const socialIcons: Record<string, string> = {
-  facebook: 'Facebook',
-  instagram: 'Instagram',
-  twitter: 'Twitter/X',
-  linkedin: 'LinkedIn',
-  youtube: 'YouTube',
-  tiktok: 'TikTok',
-  whatsapp: 'WhatsApp',
 }
 
 export function Footer({ data, siteSettings }: FooterProps) {
@@ -48,20 +37,16 @@ export function Footer({ data, siteSettings }: FooterProps) {
     ?? `© ${year} ${siteSettings.siteName || 'Site'}. Todos os direitos reservados.`
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer>
+      <div className="container">
+        <div>
           {data.columns?.map((col, i) => (
             <div key={i}>
-              {col.title && <h3 className="text-white font-semibold mb-4">{col.title}</h3>}
-              <ul className="space-y-2">
+              {col.title && <h3>{col.title}</h3>}
+              <ul>
                 {col.links?.map((link, j) => (
                   <li key={j}>
-                    <Link
-                      href={getHref(link.link)}
-                      target={link.link?.newTab ? '_blank' : undefined}
-                      className="hover:text-white transition-colors text-sm"
-                    >
+                    <Link href={getHref(link.link)} target={link.link?.newTab ? '_blank' : undefined}>
                       {link.label}
                     </Link>
                   </li>
@@ -72,14 +57,12 @@ export function Footer({ data, siteSettings }: FooterProps) {
 
           {siteSettings.contact && (
             <div>
-              <h3 className="text-white font-semibold mb-4">Contato</h3>
-              <ul className="space-y-2 text-sm">
+              <h3>Contato</h3>
+              <ul>
                 {siteSettings.contact.phone && <li>{siteSettings.contact.phone}</li>}
                 {siteSettings.contact.email && (
                   <li>
-                    <a href={`mailto:${siteSettings.contact.email}`} className="hover:text-white">
-                      {siteSettings.contact.email}
-                    </a>
+                    <a href={`mailto:${siteSettings.contact.email}`}>{siteSettings.contact.email}</a>
                   </li>
                 )}
                 {siteSettings.contact.address && <li>{siteSettings.contact.address}</li>}
@@ -89,24 +72,16 @@ export function Footer({ data, siteSettings }: FooterProps) {
         </div>
 
         {data.showSocialLinks && siteSettings.socialLinks && siteSettings.socialLinks.length > 0 && (
-          <div className="flex gap-4 mt-8 pt-8 border-t border-gray-700">
+          <div>
             {siteSettings.socialLinks.map((social, i) => (
-              <a
-                key={i}
-                href={social.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white transition-colors text-sm"
-              >
-                {socialIcons[social.platform || ''] || social.platform}
+              <a key={i} href={social.url} target="_blank" rel="noopener noreferrer">
+                {social.platform}
               </a>
             ))}
           </div>
         )}
 
-        <div className="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-500">
-          {copyright}
-        </div>
+        <div>{copyright}</div>
       </div>
     </footer>
   )

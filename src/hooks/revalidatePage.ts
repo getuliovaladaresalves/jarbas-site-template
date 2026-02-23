@@ -20,8 +20,8 @@ export const revalidatePage: CollectionAfterChangeHook = ({
   }
 
   if (collectionSlug === 'posts') {
-    revalidatePath(`/blog/${slug}`)
-    revalidatePath('/blog')
+    revalidatePath(`/posts/${slug}`)
+    revalidatePath('/posts')
     revalidateTag('posts')
   }
 

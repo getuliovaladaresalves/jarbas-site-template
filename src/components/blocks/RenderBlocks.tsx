@@ -9,23 +9,24 @@ import { Gallery } from './Gallery'
 import { Pricing } from './Pricing'
 import { Banner } from './Banner'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-const blockComponents: Record<string, React.FC<any>> = {
-  hero: Hero,
-  content: Content,
-  cta: CTA,
-  features: Features,
-  testimonials: Testimonials,
-  faq: FAQ,
-  gallery: Gallery,
-  pricing: Pricing,
-  banner: Banner,
-}
-
 interface Block {
   blockType: string
   id?: string
   [key: string]: unknown
+}
+
+type BlockComponent = React.FC<Record<string, unknown>>
+
+const blockComponents: Record<string, BlockComponent> = {
+  hero: Hero as BlockComponent,
+  content: Content as BlockComponent,
+  cta: CTA as BlockComponent,
+  features: Features as BlockComponent,
+  testimonials: Testimonials as BlockComponent,
+  faq: FAQ as BlockComponent,
+  gallery: Gallery as BlockComponent,
+  pricing: Pricing as BlockComponent,
+  banner: Banner as BlockComponent,
 }
 
 export function RenderBlocks({ blocks }: { blocks: Block[] }) {

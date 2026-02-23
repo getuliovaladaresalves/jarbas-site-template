@@ -1,3 +1,4 @@
+// SHELL — sem estilo. O @dev aplica o design-system.md neste componente.
 'use client'
 
 import { useState } from 'react'
@@ -7,7 +8,6 @@ import Image from 'next/image'
 interface NavItem {
   label: string
   link?: { type?: string; url?: string; reference?: { slug?: string } | null; newTab?: boolean }
-  children?: NavItem[]
 }
 
 interface HeaderProps {
@@ -25,10 +25,7 @@ interface HeaderProps {
 function getHref(link?: NavItem['link']): string {
   if (!link) return '#'
   if (link.type === 'external') return link.url || '#'
-  if (link.type === 'internal' && link.reference) {
-    const ref = link.reference as { slug?: string }
-    return `/${ref.slug || ''}`
-  }
+  if (link.type === 'internal' && link.reference) return `/${(link.reference as { slug?: string }).slug || ''}`
   return link.url || '#'
 }
 
@@ -37,43 +34,39 @@ export function Header({ data, siteSettings }: HeaderProps) {
   const logo = data.logo || siteSettings.logo
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="container flex items-center justify-between h-16">
-        <Link href="/" className="flex items-center gap-2">
+    <header>
+      <div className="container">
+        <Link href="/">
           {logo?.url ? (
-            <Image src={logo.url} alt={logo.alt || siteSettings.siteName || 'Logo'} width={140} height={40} className="h-8 w-auto" />
+            <Image src={logo.url} alt={logo.alt || siteSettings.siteName || 'Logo'} width={140} height={40} />
           ) : (
-            <span className="text-xl font-bold">{siteSettings.siteName || 'Site'}</span>
+            <span>{siteSettings.siteName || 'Site'}</span>
           )}
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
+        <nav aria-label="Principal">
           {data.navItems?.map((item, i) => (
             <Link
               key={i}
               href={getHref(item.link)}
               target={item.link?.newTab ? '_blank' : undefined}
-              className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
             >
               {item.label}
             </Link>
           ))}
           {data.ctaButton?.show && data.ctaButton.label && (
-            <Link
-              href={getHref(data.ctaButton.link)}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <Link href={getHref(data.ctaButton.link)}>
               {data.ctaButton.label}
             </Link>
           )}
         </nav>
 
         <button
-          className="md:hidden p-2"
+          aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
+          aria-expanded={mobileOpen}
           onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Menu"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             {mobileOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -84,23 +77,14 @@ export function Header({ data, siteSettings }: HeaderProps) {
       </div>
 
       {mobileOpen && (
-        <nav className="md:hidden border-t border-gray-200 bg-white px-4 py-4 space-y-3">
+        <nav aria-label="Menu mobile">
           {data.navItems?.map((item, i) => (
-            <Link
-              key={i}
-              href={getHref(item.link)}
-              className="block text-gray-700 hover:text-blue-600"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link key={i} href={getHref(item.link)} onClick={() => setMobileOpen(false)}>
               {item.label}
             </Link>
           ))}
           {data.ctaButton?.show && data.ctaButton.label && (
-            <Link
-              href={getHref(data.ctaButton.link)}
-              className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-lg"
-              onClick={() => setMobileOpen(false)}
-            >
+            <Link href={getHref(data.ctaButton.link)} onClick={() => setMobileOpen(false)}>
               {data.ctaButton.label}
             </Link>
           )}

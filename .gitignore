@@ -43,6 +43,15 @@ next-env.d.ts
 # payload
 src/payload-types.ts
 media/
+data/
 
 # migration data (extracted from WP)
 migration/data/
+
+# editor
+.vscode/
+.idea/
+
+# playwright
+/test-results/
+/playwright-report/

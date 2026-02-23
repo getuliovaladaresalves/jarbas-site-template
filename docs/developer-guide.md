@@ -1,44 +1,87 @@
 # Guia do Desenvolvedor
 
-## Setup Inicial
+Este guia é para desenvolvedores que precisam entender a estrutura do projeto ou fazer alterações manuais fora do fluxo de agentes.
+
+> Para criar um site do zero, use os agentes Jarbas Tech descritos no `START_HERE.md`.
+
+---
+
+## Setup
 
 ```bash
-# Clone o template
-git clone <repo-url> meu-projeto
-cd meu-projeto
-
-# Execute o scaffold (ou configure manualmente)
-npx tsx scaffold/init.ts
-
-# Instale dependências
+git clone https://github.com/seu-usuario/nome-do-projeto.git
+cd nome-do-projeto
 npm install
-
-# Configure variáveis de ambiente
 cp deploy/shared/env.example .env
-# Edite .env com suas credenciais
-
-# Inicie o desenvolvimento
 npm run dev
 ```
 
-## Criando uma Nova Collection
+O banco SQLite é criado automaticamente em `data/dev.db` na primeira execução.
+
+---
+
+## Comandos
+
+```bash
+npm run dev            # Dev server (frontend + admin)
+npm run build          # Build de produção
+npm run start          # Inicia o build de produção localmente
+npm run lint           # ESLint
+npm run typecheck      # TypeScript sem emitir arquivos
+npm run format         # Prettier — formata todos os arquivos
+npm run format:check   # Prettier — só verifica, não altera
+npm run generate:types # Gera src/payload-types.ts a partir das collections
+npm run clean          # Apaga .next e data/dev.db (começa do zero)
+npm run test           # Playwright smoke tests
+npm run test:ui        # Playwright com interface visual
+```
+
+---
+
+## Estrutura de pastas relevante
+
+```
+src/
+├── access/          ← funções de controle de acesso (isAdmin, isAdminOrEditor, isPublished)
+├── app/
+│   ├── (frontend)/  ← rotas públicas do site (page.tsx, [slug]/page.tsx, posts/)
+│   └── (payload)/   ← admin panel e API do Payload CMS
+├── blocks/          ← schemas de blocos para o Payload CMS (HeroBlock.ts, etc.)
+├── collections/     ← definições de collections (Pages, Posts, Media, Users, Categories)
+├── components/
+│   ├── blocks/      ← componentes React dos blocos (Hero.tsx, Features.tsx, etc.)
+│   ├── layout/      ← Header.tsx, Footer.tsx
+│   ├── marketing/   ← scripts de rastreamento (GTM, Pixel, Analytics)
+│   ├── seo/         ← JsonLd.tsx, GoogleAnalytics.tsx
+│   └── ui/          ← componentes reutilizáveis (criados pelo @dev: Button, Card, etc.)
+├── fields/          ← campos reutilizáveis (slug, link, colorPicker)
+├── globals/         ← globals do Payload (SiteSettings, Header, Footer, SEO, Marketing)
+├── hooks/           ← hooks do Payload (revalidatePage, formatSlug, populatePublishedAt)
+├── lib/             ← utilitários (payload.ts, generateMeta.ts, fonts.ts)
+└── styles/          ← globals.css (variáveis CSS, Tailwind)
+```
+
+---
+
+## Criando uma Collection
 
 ```typescript
 // src/collections/MinhaCollection.ts
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '@/access/isAdmin'
+import { isAdminOrEditor } from '@/access/isAdminOrEditor'
 
 export const MinhaCollection: CollectionConfig = {
   slug: 'minha-collection',
   admin: { useAsTitle: 'title' },
   access: {
-    read: () => true,
-    create: ({ req: { user } }) => user?.role === 'admin',
-    update: ({ req: { user } }) => user?.role === 'admin',
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    read: () => true,        // conteúdo público
+    create: isAdminOrEditor,
+    update: isAdminOrEditor,
+    delete: isAdmin,
   },
   fields: [
     { name: 'title', type: 'text', required: true },
-    // ... mais campos
   ],
 }
 ```
@@ -48,55 +91,40 @@ Registre em `src/payload.config.ts`:
 collections: [Pages, Posts, Media, Users, Categories, MinhaCollection],
 ```
 
-## Criando um Novo Bloco
+Execute `npm run generate:types` após qualquer mudança de schema.
 
-1. Defina o bloco em `src/blocks/MeuBloco.ts`:
+---
+
+## Criando um Bloco
+
+**1. Schema Payload** (`src/blocks/MeuBlocoBlock.ts`):
 ```typescript
 import type { Block } from 'payload'
 
-export const MeuBloco: Block = {
+export const MeuBlocoBlock: Block = {
   slug: 'meuBloco',
   fields: [
     { name: 'heading', type: 'text' },
-    // ... campos
   ],
 }
 ```
 
-2. Adicione ao array de blocos em `src/blocks/index.ts`
+**2. Registre** em `src/blocks/index.ts`
 
-3. Crie o componente em `src/components/blocks/MeuBloco.tsx`
+**3. Componente React** (`src/components/blocks/MeuBloco.tsx`):
+```tsx
+import type { MeuBlocoBlock as MeuBlocoBlockType } from '@/payload-types'
 
-4. Registre no `RenderBlocks.tsx`:
-```typescript
-import { MeuBloco } from './MeuBloco'
-const blockComponents = {
-  // ...existentes
-  meuBloco: MeuBloco,
+export function MeuBloco({ heading }: MeuBlocoBlockType) {
+  return <section>{heading}</section>
 }
 ```
 
-## Criando um Novo Global
+**4. Registre** em `src/components/blocks/RenderBlocks.tsx`
 
-```typescript
-// src/globals/MeuGlobal.ts
-import type { GlobalConfig } from 'payload'
+---
 
-export const MeuGlobal: GlobalConfig = {
-  slug: 'meu-global',
-  access: {
-    read: () => true,
-    update: ({ req: { user } }) => user?.role === 'admin',
-  },
-  fields: [
-    // ... campos
-  ],
-}
-```
-
-## Padrões de Data Fetching
-
-### Em Server Components (recomendado)
+## Data fetching (Server Components)
 
 ```typescript
 import { getPayload } from '@/lib/payload'
@@ -108,7 +136,6 @@ export default async function Page() {
   const { docs } = await payload.find({
     collection: 'pages',
     where: { status: { equals: 'published' } },
-    limit: 10,
   })
 
   // Global
@@ -116,52 +143,40 @@ export default async function Page() {
 }
 ```
 
-### Em Client Components (via API)
+---
 
-```typescript
-const res = await fetch('/api/pages?where[status][equals]=published')
-const data = await res.json()
-```
+## Variáveis de ambiente
 
-## Adicionando um Preset
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `PAYLOAD_SECRET` | Sim | Chave secreta do CMS (mín. 32 chars) |
+| `DATABASE_URI` | Não (usa SQLite) | String PostgreSQL para produção |
+| `NEXT_PUBLIC_SITE_URL` | Sim em prod | URL pública do site |
 
-Para aplicar um preset após scaffold:
+Veja `deploy/shared/env.example` para a lista completa.
 
-1. Copie collections do preset para `src/collections/`
-2. Importe e registre no `payload.config.ts`
-3. Copie componentes para `src/components/`
-4. Copie blocos para `src/blocks/` e registre no index
+---
 
 ## Deploy
 
-### Vercel
 ```bash
-npm install -g vercel
+# Vercel
 vercel --prod
-```
 
-### Docker
-```bash
+# Docker
 docker compose -f deploy/docker/docker-compose.prod.yml up -d --build
+
+# Hostinger
+# Siga deploy/hostinger/setup-hostinger.md
 ```
 
-### Hostinger
-Use o MCP Hostinger via Claude Code ou siga `deploy/hostinger/setup-hostinger.md`.
+---
 
-## Gerar Tipos TypeScript
+## Testes
 
 ```bash
-npm run generate:types
+npm run test           # Roda smoke tests (requer dev server rodando ou inicia automaticamente)
+npm run test:ui        # Interface visual do Playwright
 ```
 
-Isso gera `src/payload-types.ts` com tipos para todas as collections e globals.
-
-## Comandos Úteis
-
-```bash
-npm run dev          # Dev server
-npm run build        # Build produção
-npm run lint         # Lint
-npm run typecheck    # TypeScript check
-npm run generate:types  # Gera tipos
-```
+Os testes ficam em `tests/smoke.spec.ts`. Adicione novos testes conforme novas páginas são criadas.

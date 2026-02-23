@@ -1,14 +1,12 @@
 import type { GlobalConfig } from 'payload'
+import { isAdmin } from '@/access/isAdmin'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: 'Site Settings',
   access: {
     read: () => true,
-    update: ({ req: { user } }) => {
-      const roles = (user?.roles as string[] | undefined) ?? []
-      return roles.includes('admin')
-    },
+    update: isAdmin,
   },
   fields: [
     {

@@ -51,11 +51,15 @@ npm run generate:types  # Gera payload-types.ts
 - Blocks compõem layouts de páginas
 - Plugins: SEO, Redirects, Form Builder
 
-## Agentes AIOS
+## Agentes Jarbas Tech
 
 Agentes disponíveis em `.claude/commands/agents/`:
-- `@architect` — Arquitetura do site
-- `@ux` — Design system e componentes
-- `@dev` — Implementação
-- `@qa` — Qualidade e performance
-- `@devops` — Deploy e CI/CD
+- `@brief` — Entrevista o usuário e gera `docs/PRD.md` automaticamente ← **começa aqui**
+- `@architect` — Lê o PRD, define arquitetura técnica → gera `docs/architecture.md`
+- `@ux` — Pesquisa referências, seleciona libs, cria design system → gera `docs/design-system.md`
+- `@copy` — Pesquisa mercado, cria copy de alta conversão → gera `docs/copy.md`
+- `@dev` — Lê architecture + design + copy, implementa o site completo
+- `@qa` — Valida qualidade, SEO, acessibilidade, performance → gera `docs/qa-report.md`
+- `@devops` — Quality gates + deploy em produção
+- `@migrate` — Migração WordPress: extração, auditoria e relatório (só quando PRD indicar)
+- `@revise` — Iteração e manutenção: mudanças cirúrgicas a qualquer momento do projeto
