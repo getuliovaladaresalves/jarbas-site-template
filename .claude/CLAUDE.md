@@ -1,30 +1,43 @@
-# CLAUDE.md — Site Template
+# CLAUDE.md — Jarbas Site Template
+> Escopo: LOCAL — aplica-se a este projeto. Lido junto com o CLAUDE.md global.
+
+## Infraestrutura e decisões técnicas
+
+> **Consulte `~/.claude/STACKS_GUIDE.md`** antes de qualquer escolha de stack ou plataforma de deploy.
+> **Deploy padrão neste projeto: Coolify/Hetzner (Docker).** Vercel é opção secundária para casos simples sem backend.
 
 ## O que é este projeto
 
-Template universal para criar sites profissionais com **Next.js 15** + **Payload CMS 3.0**. Suporta sites institucionais, blogs, landing pages e e-commerce.
+Template para criar e migrar sites com **Next.js 15** + **Payload CMS 3.0**.
+
+Casos de uso principais:
+- Migração de sites WordPress (Hostinger) → Coolify/Hetzner
+- Novos sites institucionais, blogs e landing pages com painel de admin próprio
 
 ## Comandos
 
 ```bash
-npm run dev          # Inicia dev server (frontend + admin)
-npm run build        # Build de produção
-npm run lint         # ESLint
-npm run typecheck    # TypeScript check
+npm run dev             # Dev server (frontend + admin em localhost:3000)
+npm run build           # Build de produção
+npm run lint            # ESLint
+npm run typecheck       # TypeScript check
 npm run generate:types  # Gera payload-types.ts
+npm run test            # Smoke tests com Playwright
 ```
 
 ## Estrutura
 
 - `src/collections/` — Collections do Payload (Pages, Posts, Media, Users, Categories)
-- `src/globals/` — Globals (SiteSettings, Header, Footer, SEOSettings, MarketingSettings)
-- `src/blocks/` — Blocos para layout builder
+- `src/globals/` — Globals editáveis (SiteSettings, Header, Footer, SEOSettings, MarketingSettings)
+- `src/blocks/` — Schemas de blocos para layout builder
 - `src/components/` — Componentes React (layout, blocks, seo, marketing, ui)
-- `src/app/(frontend)/` — Rotas do frontend Next.js
+- `src/app/(frontend)/` — Rotas públicas do site
 - `src/app/(payload)/` — Admin panel e API do Payload
-- `presets/` — Variantes por tipo de site
 - `migration/` — Ferramentas de migração WordPress
-- `deploy/` — Configs de deploy (Vercel, Docker, Hostinger)
+- `deploy/coolify/` — Deploy no Coolify/Hetzner **(primário)**
+- `deploy/docker/` — Dockerfile e Docker Compose (dev/staging)
+- `deploy/vercel/` — Vercel (secundário)
+- `deploy/shared/` — Variáveis de ambiente compartilhadas
 
 ## Globals editáveis pelo cliente (sem dev)
 
@@ -38,28 +51,33 @@ npm run generate:types  # Gera payload-types.ts
 
 - TypeScript strict mode
 - Imports absolutos com `@/`
-- Tailwind CSS para estilização
-- Componentes server-side por padrão (client apenas quando necessário)
+- Tailwind CSS — sem CSS customizado desnecessário
+- Componentes server-side por padrão — client apenas quando necessário
 - Conventional commits: `feat:`, `fix:`, `docs:`, `chore:`
 
 ## Payload CMS 3.0
 
 - Admin panel em `/admin`
 - API REST em `/api`
-- Collections definem dados estruturados
-- Globals definem singletons editáveis
-- Blocks compõem layouts de páginas
-- Plugins: SEO, Redirects, Form Builder
+- Collections = dados estruturados
+- Globals = singletons editáveis
+- Blocks = compõem layouts de páginas
+- Plugins ativos: SEO, Redirects, Form Builder
+
+## Banco de dados
+
+- **Dev local**: SQLite (zero configuração)
+- **Produção**: PostgreSQL gerenciado pelo Coolify
 
 ## Agentes Jarbas Tech
 
-Agentes disponíveis em `.claude/commands/agents/`:
-- `@brief` — Entrevista o usuário e gera `docs/PRD.md` automaticamente ← **começa aqui**
-- `@architect` — Lê o PRD, define arquitetura técnica → gera `docs/architecture.md`
-- `@ux` — Pesquisa referências, seleciona libs, cria design system → gera `docs/design-system.md`
-- `@copy` — Pesquisa mercado, cria copy de alta conversão → gera `docs/copy.md`
-- `@dev` — Lê architecture + design + copy, implementa o site completo
-- `@qa` — Valida qualidade, SEO, acessibilidade, performance → gera `docs/qa-report.md`
-- `@devops` — Quality gates + deploy em produção
-- `@migrate` — Migração WordPress: extração, auditoria e relatório (só quando PRD indicar)
-- `@revise` — Iteração e manutenção: mudanças cirúrgicas a qualquer momento do projeto
+Agentes em `.claude/commands/agents/`:
+- `@brief` — Entrevista e gera `docs/PRD.md` ← **começa aqui**
+- `@architect` — Lê PRD, gera `docs/architecture.md`
+- `@ux` — Pesquisa referências, gera `docs/design-system.md`
+- `@copy` — Pesquisa mercado, gera `docs/copy.md`
+- `@dev` — Implementa o site (lê architecture + design + copy)
+- `@qa` — Valida qualidade, SEO, performance → gera `docs/qa-report.md`
+- `@devops` — Quality gates + deploy no Coolify/Hetzner
+- `@migrate` — Migração WordPress → Payload (chamar quando PRD indicar)
+- `@revise` — Iteração e manutenção pós-deploy
